@@ -49,6 +49,7 @@ import com.google.android.finsky.buildClientKeyExtend
 import com.google.android.finsky.buildInstallSourceMetaData
 import com.google.android.finsky.callerAppToIntegrityData
 import com.google.android.finsky.encodeBase64
+import com.google.android.finsky.enforceCallerOwnsPackage
 import com.google.android.finsky.ensureContainsLockBootloader
 import com.google.android.finsky.getAuthToken
 import com.google.android.finsky.getExpirationTime
@@ -109,6 +110,7 @@ private class ExpressIntegrityServiceImpl(private val context: Context, override
                 if (callingPackageName == null) {
                     throw StandardIntegrityException(IntegrityErrorCode.INTERNAL_ERROR, "Null packageName.")
                 }
+                context.enforceCallerOwnsPackage(callingPackageName)
                 visitData = callerAppToIntegrityData(context, callingPackageName)
                 if (visitData?.allowed != true) {
                     throw StandardIntegrityException(IntegrityErrorCode.API_NOT_AVAILABLE, "Not allowed visit")
