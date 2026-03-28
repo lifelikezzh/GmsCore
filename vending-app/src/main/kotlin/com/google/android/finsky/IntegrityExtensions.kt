@@ -13,6 +13,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.Signature
 import android.net.ConnectivityManager
+import android.os.Binder
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -103,6 +104,14 @@ private const val DEVICE_INTEGRITY_SOFT_EXPIRATION = 100800L // 28 hours
 private const val DEVICE_INTEGRITY_HARD_EXPIRATION = 432000L // 5 day
 const val INTERMEDIATE_INTEGRITY_HARD_EXPIRATION = 86400L // 1 day
 private const val TAG = "IntegrityExtensions"
+
+fun Context.enforceCallerOwnsPackage(callingPackage: String) {
+    val callingUid = Binder.getCallingUid()
+    val callingUidPackages = packageManager.getPackagesForUid(callingUid).orEmpty()
+    if (callingUidPackages.none { it == callingPackage }) {
+        throw StandardIntegrityException(IntegrityErrorCode.INTERNAL_ERROR, "Calling UID does not own packageName.")
+    }
+}
 
 fun callerAppToIntegrityData(context: Context, callingPackage: String): PlayIntegrityData {
     val pkgSignSha256ByteArray = context.packageManager.getFirstSignatureDigest(callingPackage, "SHA-256")
@@ -666,4 +675,3 @@ fun validateIntermediateIntegrityResponse(intermediateIntegrityResponse: Interme
     requireNotNull(intermediateIntegrity.intermediateToken) { "Null intermediateToken" }
     requireNotNull(intermediateIntegrity.serverGenerated) { "Null serverGenerated" }
 }
-

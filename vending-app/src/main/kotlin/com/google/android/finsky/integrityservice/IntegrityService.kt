@@ -48,6 +48,7 @@ import com.google.android.finsky.VersionCodeWrapper
 import com.google.android.finsky.callerAppToIntegrityData
 import com.google.android.finsky.getPlayCoreVersion
 import com.google.android.finsky.encodeBase64
+import com.google.android.finsky.enforceCallerOwnsPackage
 import com.google.android.finsky.getAuthToken
 import com.google.android.finsky.getPackageInfoCompat
 import com.google.android.finsky.model.IntegrityErrorCode
@@ -106,6 +107,7 @@ private class IntegrityServiceImpl(private val context: Context, override val li
                 if (packageName == null) {
                     throw StandardIntegrityException(IntegrityErrorCode.INTERNAL_ERROR, "Null packageName.")
                 }
+                context.enforceCallerOwnsPackage(packageName)
                 integrityData = callerAppToIntegrityData(context, packageName)
                 if (integrityData?.allowed != true) {
                     throw StandardIntegrityException(IntegrityErrorCode.INTERNAL_ERROR, "Not allowed to request integrity token.")
